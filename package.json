@@ -1,0 +1,33 @@
+{
+  "name": "sand-cache",
+  "version": "1.0.0",
+  "description": "Caching Client",
+  "main": "lib/cache",
+  "dependencies": {
+    "@whym/dollar": "^2.0.4",
+    "co": "sazze/co",
+    "lodash": "^3.10.0",
+    "moment": "^2.10.3",
+    "request": "^2.60.0",
+    "sand-grain": "^1.0.1"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "require-all": "^1.1.0",
+    "sand": "^1.2.0",
+    "sand-http": "=2.3.2",
+    "should": "^7.0.2"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "keywords": [
+    "cache",
+    "client"
+  ],
+  "author": "Adam Jaso <ajaso@sazze.com>",
+  "license": "ISC",
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org"
+  }
+}
