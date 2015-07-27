@@ -107,6 +107,110 @@ describe('Cache', function() {
       sand.cache.config.cacheAdapter = 'mem';
     });
 
+    describe('#save', function() {
+
+      it('should successfully save the value to the cache', function(done) {
+        co(function *() {
+          let result = yield sand.cache.save('abcd', 'efgh');
+          'ok'.should.be.eql(result);
+          done();
+        }).catch(console.log);
+      });
+
+    });
+
+    describe('#fetch', function() {
+      this.timeout(2500);
+
+      it('should successfully get the value from the cache', function(done) {
+        co(function *() {
+          let result = yield sand.cache.fetch('abcd');
+          'efgh'.should.be.eql(result);
+          done();
+        }).catch(console.log);
+      });
+
+      it('should successfully fetch the value from the cache only if createdTime is within the ttl', function(done) {
+
+        setTimeout(function () {
+          co(function *() {
+            let result = yield sand.cache.fetch('abcd', {ttl: 1});
+            (null === result).should.be.ok;
+            done();
+          }).catch(console.log);
+        }, 2000);
+      });
+
+    });
+
+    describe('#delete', function() {
+
+      it('should successfully delete the value from the cache', function(done) {
+        co(function *() {
+          let result = yield sand.cache.delete('abcd');
+          'ok'.should.be.eql(result);
+          result = yield sand.cache.fetch('abcd');
+          (null === result).should.be.ok;
+          done();
+        }).catch(console.log);
+      });
+
+    });
+
+    describe('#acquireLock', function() {
+
+      it('should set the lock', function (done) {
+        co(function *() {
+          let result = yield sand.cache.acquireLock('asdf');
+          result.should.be.ok;
+          done();
+        });
+      });
+
+      it('should fail to acquire the lock after it has been acquired', function (done) {
+        co(function *() {
+          let result = yield sand.cache.acquireLock('asdf');
+          result.should.not.be.ok;
+          done();
+        });
+      });
+
+    });
+
+    describe('#isLocked', function() {
+
+      it('should correctly indicate if the key is locked', function(done) {
+        co(function *() {
+          try {
+            let result = yield sand.cache.isLocked('asdf');
+            result.should.be.ok;
+            done();
+          } catch (e) {
+            console.log(e.stack);
+          }
+        });
+      });
+
+    });
+
+    describe('#releaseLock', function() {
+
+      it('should correctly release the lock', function(done) {
+        co(function *() {
+          try {
+            let result = yield sand.cache.releaseLock('asdf');
+            result.should.be.ok;
+            result = yield sand.cache.isLocked('asdf');
+            result.should.not.be.ok;
+            done();
+          } catch (e) {
+           console.log(e.stack);
+          }
+        });
+      });
+
+    });
+
     describe('#fetchAndSave', function() {
 
       _.each([null, undefined, false, true, 0, '', '/xyz', {}, {qs: ''}], function(val) {
@@ -129,9 +233,9 @@ describe('Cache', function() {
         it('should accept ' + JSON.stringify(val), function(done) {
           co(function *() {
             try {
-              let result = yield sand.cache.fetchAndSave(val);
-              console.log(result)
-              'A-OK'.should.eql(result);
+              let result = yield sand.cache.fetchAndSave(val, {bodyOnly: false});
+              result.headers['x-from-cache'].should.be.ok;
+              'A-OK'.should.eql(result.body);
               done();
 
             } catch(e) {
